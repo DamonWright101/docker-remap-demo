@@ -37,5 +37,5 @@
     src: escape.sh
     dest: /home/demo/escape.sh
     mode: 0777
-    owner: vagrant
-    group: vagrant
+    owner: demo
+    group: demo
