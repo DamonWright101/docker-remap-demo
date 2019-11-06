@@ -1,0 +1,8 @@
+- name: Verify
+  hosts: all
+  tasks:
+  - name: create test container
+    docker_container:
+      name: test
+      image: alpine:3.9
+      command: sleep 999

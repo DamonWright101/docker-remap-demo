@@ -1,0 +1,32 @@
+---
+- name: install dep
+  yum:
+    name: 
+    - yum-utils
+    - device-mapper-persistent-data 
+    - lvm2
+    state: present
+
+- name: add docker repo 
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+    mode: '0444'
+    owner: root
+    group: root
+
+- name: install docker
+  yum:
+    name: docker-ce
+    state: present
+
+- name: add vagrant user to docker 
+  user:
+    name: vagrant
+    groups: docker 
+
+- name: start docker
+  service:
+    name: docker
+    state: started
+    enabled: yes

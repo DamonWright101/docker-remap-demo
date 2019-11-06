@@ -1,0 +1,40 @@
+
+- name: add docker remap user
+  user:
+    name: dockremap
+    uid: "20000"
+
+- name: ensure docker directory exists
+  file:
+    path: /etc/docker/
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
+
+- name: deploy daemon json
+  template:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    mode: 0600
+    owner: root
+    group: root
+
+- name: added docker remap line to subuid
+  lineinfile:
+    path: '{{ item }}'
+    line: dockremap:20000:65536
+  with_items:
+  - /etc/subuid
+  - /etc/subgid
+
+- name: enable user namespaces
+  command: grubby --args="namespace.unpriv_enable=1 user_namespace.enable=1" --update-kernel="$(grubby --default-kernel)"
+
+- name: set max user namespaces
+  lineinfile:
+    path: /etc/sysctl.conf
+    line: "user.max_user_namespaces=15076"
+
+- name: reboot machine
+  reboot:

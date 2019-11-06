@@ -1,0 +1,41 @@
+---
+# tasks file for docker-remap
+
+- include: install-docker.yml
+
+- include: configure-remap.yml
+  when: docker_remap
+
+- name: create demo user
+  user:
+    name: demo
+    generate_ssh_key: true 
+    password: '{{ "Password" | password_hash("sha512","whatasalt") }}'
+    groups: docker
+  register: demo_user
+
+- name: ensure new pub key is in authorized_keys
+  authorized_key:
+    user: demo
+    state: present
+    key: '{{ demo_user.ssh_public_key }}'
+
+- name: fetch private key for demo user
+  fetch: 
+    src: /home/demo/.ssh/id_rsa
+    dest: '{{ role_path }}/id_rsa'
+    flat: true
+
+- name: set permissions on private key
+  file:
+    path: '{{ role_path }}/id_rsa'
+    mode: 0600
+  delegate_to: localhost
+
+- name: deploy escape script
+  template:
+    src: escape.sh
+    dest: /home/demo/escape.sh
+    mode: 0777
+    owner: vagrant
+    group: vagrant

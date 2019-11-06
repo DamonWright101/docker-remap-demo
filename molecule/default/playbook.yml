@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    docker_remap: false 
+  roles:
+    - role: docker-remap
+
+
